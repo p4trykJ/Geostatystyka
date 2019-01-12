@@ -127,8 +127,9 @@ plot(varioDirection,plot.numbers = TRUE)
 
   # Model.
 
-varioDirectionModel <- vgm(psill = 0.8, model = "Gau", range = 200000, 
-                      nugget = 0.035, anis = c(0, 0.8))
+varioDirectionModel <- vgm(psill = 0.65, model = "Gau", range = 95000, 
+                           nugget = 0.035, anis = c(0, 0.8))
+
 
 
 plot(varioDirection, varioDirectionModel, as.table = TRUE)
@@ -141,6 +142,23 @@ ocena <- krige.cv(tmin~1,
                   nmax = 20)
 
 RMSE <- sqrt(mean((ocena$residual) ^ 2))
+
+RMSE
+
+
+# 4. Estymacja.
+
+
+kg <- krige(tmin~1, locations = pomiary, newdata = siatka, model = varioDirectionModel)
+
+summary(kg)
+spplot(kg["var1.pred"])
+spplot(kg["var1.var"])
+
+# 5. Zapisanie plików.
+
+write.csv(RMSE, "Jezierski_estymacja.csv")
+writeGDAL(kg["var1.pred"], "Jezierski_estymacja.tif")
 
 
 
