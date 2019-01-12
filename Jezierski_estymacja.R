@@ -127,7 +127,7 @@ plot(varioDirection,plot.numbers = TRUE)
 
   # Model.
 
-varioDirectionModel <- vgm(psill = 0.7, model = "Gau", range = 100000, 
+varioDirectionModel <- vgm(psill = 0.8, model = "Gau", range = 200000, 
                       nugget = 0.035, anis = c(0, 0.8))
 
 
