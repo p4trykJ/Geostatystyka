@@ -1,30 +1,32 @@
-# Wczytanie pakietów 
+# 1. Wczytanie pakietów 
 
 library(rgdal)
 library(sp)
 library(gstat)
 library(ggplot2)
 
-# 1. Wczytanie danych.
+# 2. Wczytanie danych.
 
 pomiary <- readOGR("dane/pomiary.gpkg")
 siatka <- readGDAL("dane/pusta_siatka.tif")
 granica_sp <- readOGR(dsn = "dane/wojewodztwa/województwa.shp")
 
-# 2.Eksploracyjna analiza danych.
+# 3.Eksploracyjna analiza danych.
 
-summary(pomiary)
-pomiary@data
-
-# Nowa kolumna 'ID'.
+  # Nowa kolumna 'ID'.
 
 pomiary@data$ID <- seq.int(nrow(pomiary@data))
+
+summary(pomiary)
+str(pomiary)
+
+# pomiary@data
 
   # Układ - EPSG: 2180, jedna zmienna - tmin, liczba punktów - 196.
 
 ggplot(pomiary@data, aes(tmin)) + geom_histogram()
 
-# Z histogramu można odczytać występowanie dwóch wartości odstających:
+  # Z histogramu można odczytać występowanie dwóch wartości odstających:
 
 max(pomiary@data$tmin) # -0.8495289 
 which.max(pomiary@data$tmin) # w wierszu 42
@@ -48,7 +50,7 @@ min(pomiary@data$tmin) # -9.801772
 which.min(pomiary@data$tmin) # w wierszu 5.
 
   
-# Usunięcie wartości odstających.
+  # Usunięcie wartości odstającej.
 
 pomiary@data[5, 'tmin'] = NA
 pomiary = pomiary[!is.na(pomiary$tmin), ]
@@ -58,9 +60,10 @@ nrow(pomiary)
 
 ggplot(pomiary@data, aes(tmin)) + geom_histogram()
 
-  # Na poniższych wykresach można zobaczyć, że nasze dane zawierają wartości lokalnie odstające.
+  # Na poniższych wykresach można zobaczyć, że dane zawierają wartości lokalnie odstające.
   # Są to wartości -3.329741 oraz -3.6 w punktach o indeksie 174 i 181. Duże niepodobieństwo 
-  # wystepuje też pomiędzy punktami o ID 68 i 184, ale może to być spowodowane różnicą wysokości.
+  # występuje też pomiędzy punktami o ID 68 i 184, ale może to być spowodowane różnicą 
+  # wysokości, więc żaden z tych punktów nie zostanie usunięty.
 
 
 spplot(pomiary, "tmin", sp.layout = granica_sp)
@@ -128,7 +131,7 @@ plot(varioDirection,plot.numbers = TRUE)
   # Model.
 
 varioDirectionModel <- vgm(psill = 0.65, model = "Gau", range = 95000, 
-                           nugget = 0.035, anis = c(0, 0.8))
+                           nugget = 0.035, anis = c(0, 0.9))
 
 
 
@@ -157,7 +160,7 @@ spplot(kg["var1.var"])
 
 # 5. Zapisanie plików.
 
-write.csv(RMSE, "Jezierski_estymacja.csv")
+write.csv(RMSE, "Jezierski_estymacja.csv", row.names = FALSE, col.names = TRUE)
 writeGDAL(kg["var1.pred"], "Jezierski_estymacja.tif")
 
 
